@@ -1,4 +1,4 @@
-# FINT Fake avatar Adapter (FFPA)
+# FINT fint avatar Adapter (FFPA)
 
 ## Adapter configuration
 | Key | Description | Example |

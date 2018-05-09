@@ -8,7 +8,7 @@ springfox:
 base-url: https://beta.felleskomponent.no/avatar/provider
 fint:
  adapter:
-  organizations: fake.no
+  organizations: fint.no
   sse-endpoint: ${base-url}/sse/%s
   status-endpoint: ${base-url}/status
   response-endpoint: ${base-url}/response

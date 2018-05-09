@@ -23,7 +23,7 @@ apply plugin: 'org.springframework.boot'
 javadoc {
     source = sourceSets.main.allJava
     classpath = configurations.compile
-    options.windowTitle = 'Fake avatar Adapter'
+    options.windowTitle = 'fint avatar Adapter'
     options.memberLevel = JavadocMemberLevel.PRIVATE
     destinationDir = file('./javadocs/')
 }
@@ -75,7 +75,7 @@ build.dependsOn(copyExternalDependencies)
 build.dependsOn(copyFintDependencies)
 
 jar {
-    baseName = 'fake-avatar-adapter'
+    baseName = 'fint-avatar-adapter'
     manifest {
         attributes(
                 "Manifest-Version": "1.0",
