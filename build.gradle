@@ -75,7 +75,7 @@ build.dependsOn(copyExternalDependencies)
 build.dependsOn(copyFintDependencies)
 
 jar {
-    baseName = 'fint-avatar-adapter'
+    baseName = 'fint-adapter-avatar'
     manifest {
         attributes(
                 "Manifest-Version": "1.0",
