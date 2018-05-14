@@ -8,5 +8,5 @@ FROM openjdk:8-jre-alpine
 COPY --from=builder /home/gradle/build/deps/external/*.jar /data/
 COPY --from=builder /home/gradle/build/deps/fint/*.jar /data/
 COPY --from=builder /home/gradle/build/libs/fint-adapter-avatar-*.jar /data/fint-adapter-avatar.jar
-COPY images /images
+VOLUME /images
 CMD ["java", "-jar", "/data/fint-adapter-avatar.jar"]
