@@ -57,6 +57,9 @@ public class AvatarRepository implements Handler {
     @Getter
     private ConcurrentMap<String, String> filenames = new ConcurrentSkipListMap<>();
 
+    @Value("${fint.adapter.avatar.authorization.enabled:true}")
+    private boolean enableAuthorization;
+
     @Value("${fint.adapter.avatar.basedir}")
     private Path basedir;
 
@@ -142,8 +145,10 @@ public class AvatarRepository implements Handler {
         try {
             switch (AvatarActions.valueOf(response.getAction())) {
                 case GET_ALL_AVATAR:
-                    String authorization = digest(response.getCorrId());
-                    repository.forEach(r -> r.setAutorisasjon(authorization));
+                    if (enableAuthorization) {
+                        String authorization = digest(response.getCorrId());
+                        repository.forEach(r -> r.setAutorisasjon(authorization));
+                    }
                     response.setData(new ArrayList<>(repository));
                     break;
                 default:
@@ -160,6 +165,8 @@ public class AvatarRepository implements Handler {
     }
 
     public boolean authorize(String id, String authorization) {
+        if (!this.enableAuthorization)
+            return true;
         AvatarResource result = repository.stream().filter(r -> r.getSystemId().getIdentifikatorverdi().equals(id)).findAny().orElseThrow(() -> new EntityNotFoundException(id));
         return Objects.isNull(result.getAutorisasjon()) || result.getAutorisasjon().equals(authorization);
     }
