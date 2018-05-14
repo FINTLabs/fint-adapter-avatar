@@ -11,6 +11,7 @@ import no.fint.model.felles.kompleksedatatyper.Identifikator;
 import no.fint.model.resource.FintLinks;
 import no.fint.model.resource.Link;
 import no.fint.model.resource.avatar.AvatarResource;
+import no.fint.provider.avatar.EntityNotFoundException;
 import no.fint.provider.avatar.behaviour.Behaviour;
 import no.fint.provider.avatar.service.Handler;
 import no.fint.provider.avatar.service.IdentifikatorFactory;
@@ -38,8 +39,6 @@ import java.util.concurrent.ConcurrentSkipListMap;
 @Repository
 public class AvatarRepository implements Handler {
 
-    private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
-    private static final byte[] KEY = "This Is Very Secret!".getBytes();
 
     @Autowired
     ObjectMapper objectMapper;
@@ -64,20 +63,26 @@ public class AvatarRepository implements Handler {
     @Value("${fint.adapter.avatar.root}")
     private String root;
 
+    @Value("${fint.adapter.avatar.algorithm:HmacSHA1}")
+    private String algorithm;
+
+    @Value("${fint.adapter.avatar.key:This Is Really Not Very Secret!?}")
+    private String key;
+
     @PostConstruct
     public void init() throws NoSuchAlgorithmException {
         if (!Files.isDirectory(basedir))
             throw new IllegalArgumentException("Not a directory: " + basedir);
 
-        signingKey = new SecretKeySpec(KEY, HMAC_SHA1_ALGORITHM);
-        mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+        signingKey = new SecretKeySpec(key.getBytes(), algorithm);
+        mac = Mac.getInstance(algorithm);
     }
 
-    @Scheduled(initialDelay = 10000, fixedDelay = 150000)
+    @Scheduled(initialDelay = 10000, fixedDelayString = "${fint.adapter.avatar.scan-interval:1500000}")
     public void scan() {
         try {
             repository.clear();
-            Files.walk(basedir).filter(Files::isRegularFile).map(this::createAvatar).forEach(repository::add);
+            Files.walk(basedir).filter(Files::isRegularFile).map(this::createAvatar).filter(Objects::nonNull).forEach(repository::add);
             log.info("Repository contents:\n{}", objectMapper.writeValueAsString(repository));
         } catch (IOException e) {
             log.error("During scan", e);
@@ -88,10 +93,9 @@ public class AvatarRepository implements Handler {
         String filnavn = path.toAbsolutePath().toString();
         String id = path.getFileName().toString();
         id = id.substring(0, id.lastIndexOf('.'));
-        log.info("filnavn = {} id = {}", filnavn, id);
 
         AvatarResource avatarResource = new AvatarResource();
-        Link link = Link.with("");
+        Link link;
         if (filnavn.contains("ansattnummer")) {
             link = Link.with("${administrasjon.personal.personalressurs}/ansattnummer/" + id);
             avatarResource.addPersonalressurs(link);
@@ -101,6 +105,9 @@ public class AvatarRepository implements Handler {
         } else if (filnavn.contains("fodselsnummer")) {
             link = Link.with("${felles.person}/fodselsnummer/" + id);
             avatarResource.addPerson(link);
+        } else {
+            log.warn("No valid relation found, ignoring file {}", filnavn);
+            return null;
         }
 
         Identifikator identifikator = new Identifikator();
@@ -108,7 +115,6 @@ public class AvatarRepository implements Handler {
         identifikator.setIdentifikatorverdi(systemId);
         avatarResource.setSystemId(identifikator);
         avatarResource.setFilnavn(UriComponentsBuilder.fromUriString(root).pathSegment("avatar", systemId).toUriString());
-        avatarResource.setAutorisasjon("HEMMELIG");
 
         filenames.put(systemId, filnavn);
 
@@ -136,6 +142,8 @@ public class AvatarRepository implements Handler {
         try {
             switch (AvatarActions.valueOf(response.getAction())) {
                 case GET_ALL_AVATAR:
+                    String authorization = digest(response.getCorrId());
+                    repository.forEach(r -> r.setAutorisasjon(authorization));
                     response.setData(new ArrayList<>(repository));
                     break;
                 default:
@@ -151,4 +159,8 @@ public class AvatarRepository implements Handler {
         }
     }
 
+    public boolean authorize(String id, String authorization) {
+        AvatarResource result = repository.stream().filter(r -> r.getSystemId().getIdentifikatorverdi().equals(id)).findAny().orElseThrow(() -> new EntityNotFoundException(id));
+        return Objects.isNull(result.getAutorisasjon()) || result.getAutorisasjon().equals(authorization);
+    }
 }
