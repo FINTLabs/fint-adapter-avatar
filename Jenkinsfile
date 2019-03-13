@@ -4,7 +4,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    props=readProperties file: 'gradle.properties'
+                    props = readProperties file: 'gradle.properties'
                 }
                 sh "docker build --tag ${GIT_COMMIT} --build-arg apiVersion=${props.apiVersion} ."
             }
@@ -14,19 +14,34 @@ pipeline {
                 branch 'master'
             }
             steps {
-                sh "docker tag ${GIT_COMMIT} dtr.rogfk.no/fint-beta/adapter-avatar:latest"
-                withDockerRegistry([credentialsId: 'dtr-rogfk-no', url: 'https://dtr.rogfk.no']) {
-                    sh "docker push 'dtr.rogfk.no/fint-beta/adapter-avatar:latest'"
+                sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/adapter-profilbilde:build.${BUILD_NUMBER}"
+                withDockerRegistry([credentialsId: 'fintlabs.azurecr.io', url: 'https://fintlabs.azurecr.io']) {
+                    sh "docker push fintlabs.azurecr.io/adapter-profilbilde:build.${BUILD_NUMBER}"
                 }
             }
         }
         stage('Publish PR') {
             when { changeRequest() }
             steps {
-                sh "docker tag ${GIT_COMMIT} dtr.rogfk.no/fint-beta/adapter-avatar:${BRANCH_NAME}"
-                withDockerRegistry([credentialsId: 'dtr-rogfk-no', url: 'https://dtr.rogfk.no']) {
-                    sh "docker push 'dtr.rogfk.no/fint-beta/adapter-avatar:${BRANCH_NAME}'"
+                sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/adapter-profilbilde:${BRANCH_NAME}.${BUILD_NUMBER}"
+                withDockerRegistry([credentialsId: 'fintlabs.azurecr.io', url: 'https://fintlabs.azurecr.io']) {
+                    sh "docker push fintlabs.azurecr.io/adapter-profilbilde:${BRANCH_NAME}.${BUILD_NUMBER}"
                 }
+            }
+        }
+        stage('Publish Version') {
+            when {
+                tag pattern: "v\\d+\\.\\d+\\.\\d+(-\\w+-\\d+)?", comparator: "REGEXP"
+            }
+            steps {
+                script {
+                    VERSION = TAG_NAME[1..-1]
+                }
+                sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/adapter-profilbilde:${VERSION}"
+                withDockerRegistry([credentialsId: 'fintlabs.azurecr.io', url: 'https://fintlabs.azurecr.io']) {
+                    sh "docker push fintlabs.azurecr.io/adapter-profilbilde:${VERSION}"
+                }
+
             }
         }
     }

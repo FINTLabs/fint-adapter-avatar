@@ -9,7 +9,7 @@ fint:
   status-endpoint: http://localhost:8081/provider/status
   response-endpoint: http://localhost:8081/provider/response
   avatar:
-   basedir: /Users/noasgnil/Documents/Git/fint-adapter-avatar/images
+   basedir: /Users/noasgnil/Documents/Git/fint-adapter-profilbilde/images
    root: http://10.0.75.1:8091
 
  oauth:
