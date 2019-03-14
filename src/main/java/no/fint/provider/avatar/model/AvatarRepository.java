@@ -143,19 +143,17 @@ public class AvatarRepository implements Handler {
         log.debug("Handling {} ...", response);
         log.trace("Event data: {}", response.getData());
         try {
-            switch (AvatarActions.valueOf(response.getAction())) {
-                case GET_ALL_AVATAR:
-                    if (enableAuthorization) {
-                        String authorization = digest(response.getCorrId());
-                        repository.forEach(r -> r.setAutorisasjon(authorization));
-                    }
-                    response.setData(new ArrayList<>(repository));
-                    break;
-                default:
-                    response.setStatus(Status.ADAPTER_REJECTED);
-                    response.setResponseStatus(ResponseStatus.REJECTED);
-                    response.setStatusCode("INVALID_ACTION");
-                    response.setMessage("Invalid action");
+            if (AvatarActions.valueOf(response.getAction()) == AvatarActions.GET_ALL_AVATAR) {
+                if (enableAuthorization) {
+                    repository.forEach(r -> r.setAutorisasjon(
+                            digest(response.getCorrId() + r.getFilnavn())));
+                }
+                response.setData(new ArrayList<>(repository));
+            } else {
+                response.setStatus(Status.ADAPTER_REJECTED);
+                response.setResponseStatus(ResponseStatus.REJECTED);
+                response.setStatusCode("INVALID_ACTION");
+                response.setMessage("Invalid action");
             }
         } catch (Exception e) {
             log.error("Error!", e);
