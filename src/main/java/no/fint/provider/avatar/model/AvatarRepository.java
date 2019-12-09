@@ -15,6 +15,7 @@ import no.fint.provider.avatar.EntityNotFoundException;
 import no.fint.provider.avatar.behaviour.Behaviour;
 import no.fint.provider.avatar.service.Handler;
 import no.fint.provider.avatar.service.IdentifikatorFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -66,7 +67,7 @@ public class AvatarRepository implements Handler {
     @Value("${fint.adapter.avatar.root}")
     private String root;
 
-    @Value("${fint.adapter.avatar.algorithm:HmacSHA1}")
+    @Value("${fint.adapter.avatar.algorithm:HmacSHA256}")
     private String algorithm;
 
     @Value("${fint.adapter.avatar.key:This Is Really Not Very Secret!?}")
@@ -127,7 +128,7 @@ public class AvatarRepository implements Handler {
     private String digest(String input) {
         try {
             mac.init(signingKey);
-            return Base64.getUrlEncoder().encodeToString(mac.doFinal(input.getBytes()));
+            return StringUtils.stripEnd(Base64.getUrlEncoder().encodeToString(mac.doFinal(input.getBytes())), "=");
         } catch (InvalidKeyException e) {
             throw new RuntimeException(e);
         }
