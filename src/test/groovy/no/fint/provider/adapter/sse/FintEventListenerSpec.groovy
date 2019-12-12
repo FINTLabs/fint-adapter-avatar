@@ -2,7 +2,7 @@ package no.fint.provider.adapter.sse
 
 import no.fint.event.model.DefaultActions
 import no.fint.event.model.Event
-import no.fint.provider.avatar.service.EventHandlerService
+import no.fint.provider.profilbilde.service.EventHandlerService
 import org.glassfish.jersey.media.sse.InboundEvent
 import spock.lang.Specification
 

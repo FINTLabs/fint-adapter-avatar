@@ -1,4 +1,4 @@
-package no.fint.provider.avatar.behaviour;
+package no.fint.provider.profilbilde.behaviour;
 
 import no.fint.event.model.Event;
 import no.fint.event.model.Problem;

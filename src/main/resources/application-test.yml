@@ -8,7 +8,7 @@ fint:
   sse-endpoint: http://localhost:8081/provider/sse/%s
   status-endpoint: http://localhost:8081/provider/status
   response-endpoint: http://localhost:8081/provider/response
-  avatar:
+  profilbilde:
    basedir: /Users/noasgnil/Documents/Git/fint-adapter-profilbilde/images
    root: http://10.0.75.1:8091
 
@@ -18,4 +18,4 @@ fint:
 logging:
  level:
   no.fint.provider.adapter.event: DEBUG
-  no.fint.provider.avatar.model: TRACE
+  no.fint.provider.profilbilde.model: TRACE

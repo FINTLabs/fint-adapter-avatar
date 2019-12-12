@@ -1,4 +1,4 @@
-package no.fint.provider.avatar;
+package no.fint.provider.profilbilde;
 
 public class EntityNotFoundException extends RuntimeException {
     public EntityNotFoundException(String message) {

@@ -1,6 +1,6 @@
-package no.fint.provider.avatar.service
+package no.fint.provider.profilbilde.service
 
-import no.fint.provider.avatar.service.IdentifikatorFactory
+
 import spock.lang.Specification
 
 import java.util.concurrent.atomic.AtomicInteger

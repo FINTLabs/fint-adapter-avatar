@@ -1,6 +1,6 @@
-package no.fint.provider.avatar;
+package no.fint.provider.profilbilde;
 
-import no.fint.model.avatar.AvatarActions;
+import no.fint.model.profilbilde.ProfilbildeActions;
 import no.fint.provider.adapter.AbstractSupportedActions;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +11,7 @@ public class SupportedActions extends AbstractSupportedActions {
 
     @PostConstruct
     public void addSupportedActions() {
-        addAll(AvatarActions.class);
+        addAll(ProfilbildeActions.class);
     }
 
 }

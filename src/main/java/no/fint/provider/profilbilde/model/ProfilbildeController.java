@@ -1,11 +1,10 @@
-package no.fint.provider.avatar.model;
+package no.fint.provider.profilbilde.model;
 
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.HeaderConstants;
-import no.fint.model.resource.avatar.AvatarResource;
-import no.fint.provider.avatar.EntityNotFoundException;
+import no.fint.model.resource.profilbilde.ProfilbildeResource;
+import no.fint.provider.profilbilde.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,22 +13,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.PostConstruct;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
-
 @Slf4j
 @CrossOrigin
 @RestController
-@RequestMapping(value = "/avatar", produces = {MediaType.IMAGE_JPEG_VALUE})
-public class AvatarController {
+@RequestMapping(value = "/profilbilde", produces = {MediaType.IMAGE_JPEG_VALUE})
+public class ProfilbildeController {
 
     @Autowired
-    AvatarRepository repository;
+    ProfilbildeRepository repository;
 
     @GetMapping("/{id}")
-    public FileSystemResource getAvatarByFileName(@PathVariable String id,
+    public FileSystemResource getProfilbildeByFileName(@PathVariable String id,
                                                   @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
                                                   @RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId,
                                                   @RequestHeader(name = HeaderConstants.CLIENT, required = false) String client) {

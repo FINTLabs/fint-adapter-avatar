@@ -1,4 +1,4 @@
-package no.fint.provider.avatar.service;
+package no.fint.provider.profilbilde.service;
 
 import no.fint.model.felles.kompleksedatatyper.Identifikator;
 import org.springframework.stereotype.Service;
