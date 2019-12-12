@@ -6,7 +6,7 @@ import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.HeaderConstants;
 import no.fint.provider.adapter.FintAdapterProps;
-import no.fint.provider.avatar.service.EventHandlerService;
+import no.fint.provider.profilbilde.service.EventHandlerService;
 import no.fint.sse.FintSse;
 import no.fint.sse.FintSseConfig;
 import no.fint.sse.oauth.TokenService;

@@ -44,7 +44,7 @@ spec:
           readOnly: false
       containers:
       - name: adapter-profilbilder
-        image: fintlabs.azurecr.io/adapter-profilbilde:build.1
+        image: fintlabs.azurecr.io/adapter-profilbilde:build.7
         ports:
           - containerPort: 8091
         readinessProbe:
@@ -56,11 +56,11 @@ spec:
           value: Europe/Oslo
         - name: JAVA_TOOL_OPTIONS
           value: -XX:+ExitOnOutOfMemoryError -verbose:gc -Xmx1G
-        - name: fint.adapter.avatar.algorithm
+        - name: fint.adapter.profilbilde.algorithm
           value: Poly1305
-        - name: fint.adapter.avatar.basedir
+        - name: fint.adapter.profilbilde.basedir
           value: /images
-        - name: fint.adapter.avatar.root
+        - name: fint.adapter.profilbilde.root
           value: http://adapter-profilbilder:8091
         - name: fint.adapter.organizations
           value: fintlabs.no

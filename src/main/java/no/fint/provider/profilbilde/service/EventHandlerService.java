@@ -1,4 +1,4 @@
-package no.fint.provider.avatar.service;
+package no.fint.provider.profilbilde.service;
 
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
@@ -6,7 +6,7 @@ import no.fint.event.model.ResponseStatus;
 import no.fint.event.model.Status;
 import no.fint.event.model.health.Health;
 import no.fint.event.model.health.HealthStatus;
-import no.fint.model.avatar.AvatarActions;
+import no.fint.model.profilbilde.ProfilbildeActions;
 import no.fint.model.resource.FintLinks;
 import no.fint.provider.adapter.event.EventResponseService;
 import no.fint.provider.adapter.event.EventStatusService;
@@ -37,7 +37,7 @@ public class EventHandlerService {
     @Autowired
     private Collection<Handler> handlers;
 
-    private EnumMap<AvatarActions, Handler> actionsHandlerMap;
+    private EnumMap<ProfilbildeActions, Handler> actionsHandlerMap;
 
     /**
      * <p>
@@ -71,7 +71,7 @@ public class EventHandlerService {
             if (event != null && eventStatusService.verifyEvent(event).getStatus() == Status.ADAPTER_ACCEPTED) {
                 Event<FintLinks> responseEvent = new Event<>(event);
                 try {
-                    AvatarActions action = AvatarActions.valueOf(event.getAction());
+                    ProfilbildeActions action = ProfilbildeActions.valueOf(event.getAction());
 
                     actionsHandlerMap.getOrDefault(action, e -> {
                         log.warn("No handler found for {}", action);
@@ -132,7 +132,7 @@ public class EventHandlerService {
      */
     @PostConstruct
     void init() {
-        actionsHandlerMap = new EnumMap<AvatarActions, Handler>(AvatarActions.class);
+        actionsHandlerMap = new EnumMap<ProfilbildeActions, Handler>(ProfilbildeActions.class);
         handlers.forEach(h -> h.actions().forEach(a -> actionsHandlerMap.put(a, h)));
         log.info("Registered {} handlers.", actionsHandlerMap.size());
     }

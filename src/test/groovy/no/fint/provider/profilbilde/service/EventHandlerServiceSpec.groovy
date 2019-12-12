@@ -1,4 +1,4 @@
-package no.fint.provider.avatar.service
+package no.fint.provider.profilbilde.service
 
 import no.fint.event.model.DefaultActions
 import no.fint.event.model.Event

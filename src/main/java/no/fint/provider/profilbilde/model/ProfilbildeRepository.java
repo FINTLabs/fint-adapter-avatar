@@ -1,4 +1,4 @@
-package no.fint.provider.avatar.model;
+package no.fint.provider.profilbilde.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -6,15 +6,15 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.event.model.ResponseStatus;
 import no.fint.event.model.Status;
-import no.fint.model.avatar.AvatarActions;
+import no.fint.model.profilbilde.ProfilbildeActions;
 import no.fint.model.felles.kompleksedatatyper.Identifikator;
 import no.fint.model.resource.FintLinks;
 import no.fint.model.resource.Link;
-import no.fint.model.resource.avatar.AvatarResource;
-import no.fint.provider.avatar.EntityNotFoundException;
-import no.fint.provider.avatar.behaviour.Behaviour;
-import no.fint.provider.avatar.service.Handler;
-import no.fint.provider.avatar.service.IdentifikatorFactory;
+import no.fint.model.resource.profilbilde.ProfilbildeResource;
+import no.fint.provider.profilbilde.EntityNotFoundException;
+import no.fint.provider.profilbilde.behaviour.Behaviour;
+import no.fint.provider.profilbilde.service.Handler;
+import no.fint.provider.profilbilde.service.IdentifikatorFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 @Slf4j
 @Repository
-public class AvatarRepository implements Handler {
+public class ProfilbildeRepository implements Handler {
 
 
     @Autowired
@@ -48,29 +48,29 @@ public class AvatarRepository implements Handler {
     IdentifikatorFactory identifikatorFactory;
 
     @Autowired
-    List<Behaviour<AvatarResource>> behaviours;
+    List<Behaviour<ProfilbildeResource>> behaviours;
 
     Key signingKey;
     Mac mac;
 
-    private Collection<AvatarResource> repository = new ConcurrentLinkedQueue<>();
+    private Collection<ProfilbildeResource> repository = new ConcurrentLinkedQueue<>();
 
     @Getter
     private ConcurrentMap<String, String> filenames = new ConcurrentSkipListMap<>();
 
-    @Value("${fint.adapter.avatar.authorization.enabled:true}")
+    @Value("${fint.adapter.profilbilde.authorization.enabled:true}")
     private boolean enableAuthorization;
 
-    @Value("${fint.adapter.avatar.basedir}")
+    @Value("${fint.adapter.profilbilde.basedir}")
     private Path basedir;
 
-    @Value("${fint.adapter.avatar.root}")
+    @Value("${fint.adapter.profilbilde.root}")
     private String root;
 
-    @Value("${fint.adapter.avatar.algorithm:HmacSHA256}")
+    @Value("${fint.adapter.profilbilde.algorithm:HmacSHA256}")
     private String algorithm;
 
-    @Value("${fint.adapter.avatar.key:This Is Really Not Very Secret!?}")
+    @Value("${fint.adapter.profilbilde.key:This Is Really Not Very Secret!?}")
     private String key;
 
     @PostConstruct
@@ -82,33 +82,33 @@ public class AvatarRepository implements Handler {
         mac = Mac.getInstance(algorithm);
     }
 
-    @Scheduled(initialDelay = 10000, fixedDelayString = "${fint.adapter.avatar.scan-interval:1500000}")
+    @Scheduled(initialDelay = 10000, fixedDelayString = "${fint.adapter.profilbilde.scan-interval:1500000}")
     public void scan() {
         try {
             repository.clear();
-            Files.walk(basedir).filter(Files::isRegularFile).map(this::createAvatar).filter(Objects::nonNull).forEach(repository::add);
+            Files.walk(basedir).filter(Files::isRegularFile).map(this::createProfilbilde).filter(Objects::nonNull).forEach(repository::add);
             log.info("Repository contents:\n{}", objectMapper.writeValueAsString(repository));
         } catch (IOException e) {
             log.error("During scan", e);
         }
     }
 
-    private AvatarResource createAvatar(Path path) {
+    private ProfilbildeResource createProfilbilde(Path path) {
         String filnavn = path.toAbsolutePath().toString();
         String id = path.getFileName().toString();
         id = id.substring(0, id.lastIndexOf('.'));
 
-        AvatarResource avatarResource = new AvatarResource();
+        ProfilbildeResource profilbildeResource = new ProfilbildeResource();
         Link link;
         if (filnavn.contains("ansattnummer")) {
             link = Link.with("${administrasjon.personal.personalressurs}/ansattnummer/" + id);
-            avatarResource.addPersonalressurs(link);
+            profilbildeResource.addPersonalressurs(link);
         } else if (filnavn.contains("elevnummer")) {
             link = Link.with("${utdanning.elev.elev}/elevnummer/" + id);
-            avatarResource.addElev(link);
+            profilbildeResource.addElev(link);
         } else if (filnavn.contains("fodselsnummer")) {
             link = Link.with("${felles.person}/fodselsnummer/" + id);
-            avatarResource.addPerson(link);
+            profilbildeResource.addPerson(link);
         } else {
             log.warn("No valid relation found, ignoring file {}", filnavn);
             return null;
@@ -117,12 +117,12 @@ public class AvatarRepository implements Handler {
         Identifikator identifikator = new Identifikator();
         String systemId = digest(link.getHref());
         identifikator.setIdentifikatorverdi(systemId);
-        avatarResource.setSystemId(identifikator);
-        avatarResource.setFilnavn(UriComponentsBuilder.fromUriString(root).pathSegment("avatar", systemId).toUriString());
+        profilbildeResource.setSystemId(identifikator);
+        profilbildeResource.setFilnavn(UriComponentsBuilder.fromUriString(root).pathSegment("profilbilde", systemId).toUriString());
 
         filenames.put(systemId, filnavn);
 
-        return avatarResource;
+        return profilbildeResource;
     }
 
     private String digest(String input) {
@@ -135,8 +135,8 @@ public class AvatarRepository implements Handler {
     }
 
     @Override
-    public EnumSet<AvatarActions> actions() {
-        return EnumSet.of(AvatarActions.GET_ALL_AVATAR);
+    public EnumSet<ProfilbildeActions> actions() {
+        return EnumSet.of(ProfilbildeActions.GET_ALL_PROFILBILDE);
     }
 
     @Override
@@ -144,7 +144,7 @@ public class AvatarRepository implements Handler {
         log.debug("Handling {} ...", response);
         log.trace("Event data: {}", response.getData());
         try {
-            if (AvatarActions.valueOf(response.getAction()) == AvatarActions.GET_ALL_AVATAR) {
+            if (ProfilbildeActions.valueOf(response.getAction()) == ProfilbildeActions.GET_ALL_PROFILBILDE) {
                 if (enableAuthorization) {
                     repository.forEach(r -> r.setAutorisasjon(
                             digest(response.getCorrId() + r.getFilnavn())));
@@ -166,7 +166,7 @@ public class AvatarRepository implements Handler {
     public boolean authorize(String id, String authorization) {
         if (!this.enableAuthorization)
             return true;
-        AvatarResource result = repository.stream().filter(r -> r.getSystemId().getIdentifikatorverdi().equals(id)).findAny().orElseThrow(() -> new EntityNotFoundException(id));
+        ProfilbildeResource result = repository.stream().filter(r -> r.getSystemId().getIdentifikatorverdi().equals(id)).findAny().orElseThrow(() -> new EntityNotFoundException(id));
         return Objects.isNull(result.getAutorisasjon()) || result.getAutorisasjon().equals(authorization);
     }
 }
