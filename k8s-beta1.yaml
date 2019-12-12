@@ -44,7 +44,7 @@ spec:
           readOnly: false
       containers:
       - name: adapter-profilbilder
-        image: fintlabs.azurecr.io/adapter-profilbilde:build.7
+        image: fintlabs.azurecr.io/adapter-profilbilde:build.8
         ports:
           - containerPort: 8091
         readinessProbe:
