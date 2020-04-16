@@ -63,6 +63,11 @@ public class SseInitializer {
     public void checkSseConnection() {
         timestamp = System.currentTimeMillis();
         count.incrementAndGet();
+        if (sseClients.isEmpty()) {
+            log.warn("Reinitializing SSE connections!");
+            init();
+            return;
+        }
         try {
             Map<String, Long> expired = sseClients
                     .stream()
