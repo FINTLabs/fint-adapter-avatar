@@ -14,18 +14,18 @@ pipeline {
                 branch 'master'
             }
             steps {
-                sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/adapter-profilbilde:build.${BUILD_NUMBER}"
-                withDockerRegistry([credentialsId: 'fintlabs.azurecr.io', url: 'https://fintlabs.azurecr.io']) {
-                    sh "docker push fintlabs.azurecr.io/adapter-profilbilde:build.${BUILD_NUMBER}"
+                sh "docker tag ${GIT_COMMIT} fintlabsacr.azurecr.io/adapter-profilbilde:build.${BUILD_NUMBER}"
+                withDockerRegistry([credentialsId: 'fintlabsacr.azurecr.io', url: 'https://fintlabsacr.azurecr.io']) {
+                    sh "docker push fintlabsacr.azurecr.io/adapter-profilbilde:build.${BUILD_NUMBER}"
                 }
             }
         }
         stage('Publish PR') {
             when { changeRequest() }
             steps {
-                sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/adapter-profilbilde:${BRANCH_NAME}.${BUILD_NUMBER}"
-                withDockerRegistry([credentialsId: 'fintlabs.azurecr.io', url: 'https://fintlabs.azurecr.io']) {
-                    sh "docker push fintlabs.azurecr.io/adapter-profilbilde:${BRANCH_NAME}.${BUILD_NUMBER}"
+                sh "docker tag ${GIT_COMMIT} fintlabsacr.azurecr.io/adapter-profilbilde:${BRANCH_NAME}.${BUILD_NUMBER}"
+                withDockerRegistry([credentialsId: 'fintlabsacr.azurecr.io', url: 'https://fintlabsacr.azurecr.io']) {
+                    sh "docker push fintlabsacr.azurecr.io/adapter-profilbilde:${BRANCH_NAME}.${BUILD_NUMBER}"
                 }
             }
         }
@@ -37,9 +37,9 @@ pipeline {
                 script {
                     VERSION = TAG_NAME[1..-1]
                 }
-                sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/adapter-profilbilde:${VERSION}"
-                withDockerRegistry([credentialsId: 'fintlabs.azurecr.io', url: 'https://fintlabs.azurecr.io']) {
-                    sh "docker push fintlabs.azurecr.io/adapter-profilbilde:${VERSION}"
+                sh "docker tag ${GIT_COMMIT} fintlabsacr.azurecr.io/adapter-profilbilde:${VERSION}"
+                withDockerRegistry([credentialsId: 'fintlabsacr.azurecr.io', url: 'https://fintlabsacr.azurecr.io']) {
+                    sh "docker push fintlabsacr.azurecr.io/adapter-profilbilde:${VERSION}"
                 }
 
             }
